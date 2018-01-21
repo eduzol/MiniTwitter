@@ -1,5 +1,8 @@
 package com.github.eduzol.minitwitter.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,17 @@ public class MessageService implements IMessageService {
 		
 		Message message = messageDao.findById(id);
 		return message;
+	}
+
+	@Override
+	public List<Message> getMessagesByUser(String username,  int pageSize, int pageNumber , Optional<String> searchTerm) {
+
+		if (! searchTerm.isPresent()) {
+			return	messageDao.getMessagesByUser(username, pageSize, pageNumber);
+		}else {
+			return messageDao.getMessagesByUser(username,  pageSize, pageNumber , searchTerm.get());
+		}
+		
 	}
 
 }

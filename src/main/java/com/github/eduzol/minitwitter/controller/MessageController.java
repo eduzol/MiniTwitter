@@ -31,15 +31,22 @@ public class MessageController {
 	}
 
 	@RequestMapping(path ="/message/{messageId}" , method=RequestMethod.GET)
-	public ResponseEntity<Message> getMessagesByUser(  @PathVariable Long messageId   ) {
+	public ResponseEntity<Message> getMessagesById(  @PathVariable Long messageId   ) {
 		
 		Message message =  messageService.getMessageById(messageId);
 		String username = authService.getAuthentication().getName();
 		logger.info(username+" " + message.toString());
-		
 		return  ResponseEntity.ok(message);
 		
 	}
 	
+	@RequestMapping(path="/messages" , method = RequestMethod.GET)
+	public ResponseEntity<String> getMessagesByUser(   ) {
+		
+		String username = authService.getAuthentication().getName();
+		logger.info(username);
+		return  ResponseEntity.ok(username);
+		
+	}
 	
 }

@@ -1,5 +1,8 @@
 package com.github.eduzol.test.minitwitter;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,5 +34,16 @@ public class MessageServiceTest {
 		logger.info("Test  " + message);
 		Assert.assertNotNull(message);
 		Assert.assertTrue(message.getId() == id);
+	}
+	
+	@Test
+	public void testMessageServiceGetMessagesNoSearch() {
+		
+		String username = "batman";
+		List<Message> messages = messageService.getMessagesByUser(username, 20, 1, Optional.empty());
+		
+		for ( Message m : messages) {
+			logger.info(m.toString());
+		}
 	}
 }
