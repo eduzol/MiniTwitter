@@ -26,11 +26,10 @@ public class MessageServiceTest {
 	@Test
 	public void testMessageService() {
 		
-		Message message = messageService.getMessageById(1);
+		long id = 1;
+		Message message = messageService.getMessageById(id);
 		logger.info("Test  " + message);
 		Assert.assertNotNull(message);
-	
+		Assert.assertTrue(message.getId() == id);
 	}
-		
-	
 }
