@@ -1,5 +1,7 @@
 package com.github.eduzol.minitwitter.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +13,7 @@ import com.github.eduzol.minitwitter.domain.Message;
 public class MessageJdbcRepository implements IMessageRepository{
 
 	private JdbcTemplate jdbcTemplate;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	public MessageJdbcRepository( JdbcTemplate jdbcTemplate) {
@@ -22,8 +25,7 @@ public class MessageJdbcRepository implements IMessageRepository{
 		Message message =  jdbcTemplate.queryForObject("select * from messages where id=?", new Object[] { id },
 				new BeanPropertyRowMapper<Message>(Message.class));
 		
-		System.out.println("Message found " + message);
-		
+		logger.info("Message found " + message);
 		return message;
 	}
 }
