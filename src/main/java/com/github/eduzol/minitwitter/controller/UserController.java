@@ -44,5 +44,14 @@ public class UserController {
 
 	}
 	
+	@RequestMapping(path="/followees" , method = RequestMethod.GET)
+	public ResponseEntity<List<User>> getFolloweesByUser(  @RequestParam(name="page-size") Integer pageSize , 
+			@RequestParam(name="page") Integer pageNumber  ) {
+		
+		String username = authService.getAuthentication().getName();
+		List<User> followers = userService.getFollowers(username, pageSize, pageNumber);
+		return  ResponseEntity.ok(followers);
+	}
+	
 }
 

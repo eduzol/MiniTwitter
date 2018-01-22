@@ -27,6 +27,7 @@ public class UserJdbcRepository implements IUserRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 	
+	@Override
 	public List<User> getFollowers(String username , int pageSize, int pageNumber) {
 		
 		String sql = "SELECT T.* FROM FOLLOWERS F INNER JOIN PEOPLE P ON F.PERSON_ID = P.ID \r\n" + 
@@ -47,4 +48,25 @@ public class UserJdbcRepository implements IUserRepository {
 		
 		return followers;
 	}
+	
+	@Override
+	public List<User> getFollowees( String username , int pageSize, int pageNumber ) {
+		
+		String sql =  "SELECT P.* FROM FOLLOWERS F INNER JOIN PEOPLE P on F.PERSON_ID = P.ID\r\n" + 
+				"INNER JOIN PEOPLE T ON F.FOLLOWER_PERSON_ID = T.ID\r\n" + 
+				" WHERE T.HANDLE = ? ORDER BY F.ID LIMIT ? OFFSET ?" ;
+		
+		int offset = pageSize*(pageNumber-1);
+		List<User> followees =  jdbcTemplate.query(sql, new Object[] { username, pageSize, offset }, new RowMapper<User>() {
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User();
+                user.setHandle(rs.getNString("HANDLE"));
+                user.setId(Long.parseLong(rs.getNString("ID")));
+                user.setName(rs.getNString("NAME"));
+                return user;
+            }
+        }); 
+		
+		return followees;
+	} 
 }
