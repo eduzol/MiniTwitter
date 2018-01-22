@@ -227,3 +227,8 @@ VALUES
     (5, 7),
     (2, 1),
     (10, 9);
+    
+CREATE ALIAS IF NOT EXISTS FT_INIT FOR "org.h2.fulltext.FullText.init";
+CALL FT_INIT();
+
+CALL FT_CREATE_INDEX('PUBLIC', 'MESSAGES', 'CONTENT');
