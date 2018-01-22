@@ -36,7 +36,7 @@ public class MessageJdbcRepository implements IMessageRepository{
 
 	@Override
 	public List<Message> getMessagesByUser(String username, int pageSize, int pageNumber) {
-		// TODO Auto-generated method stub
+		
 		String sql = "select MESSAGES.*  from PEOPLE INNER JOIN MESSAGES ON PEOPLE.ID = MESSAGES.PERSON_ID WHERE HANDLE=? order by ID LIMIT ? OFFSET ?";
 		int offset = pageSize*(pageNumber-1);
 		List<Message> messages =  jdbcTemplate.query(sql ,new Object[]{username, pageSize,offset}, new RowMapper<Message>() {
@@ -53,8 +53,21 @@ public class MessageJdbcRepository implements IMessageRepository{
 	}
 
 	@Override
-	public List<Message> getMessagesByUser(String username,int pageSize, int pageNumber,  String searchterm ) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Message> getMessagesByUser(String username,int pageSize, int pageNumber,  String searchTerm ) {
+		
+		String sql = "select MESSAGES.*  from PEOPLE INNER  JOIN MESSAGES ON PEOPLE.ID = MESSAGES.PERSON_ID \r\n" + 
+				"JOIN FT_SEARCH_DATA(?,0, 0) FT\r\n" + 
+				"WHERE HANDLE=? AND FT.TABLE = 'MESSAGES' AND MESSAGES.ID=FT.KEYS[0] order by ID LIMIT ? OFFSET ?;";
+		int offset = pageSize*(pageNumber-1);
+		List<Message> messages =  jdbcTemplate.query(sql ,new Object[]{searchTerm, username, pageSize,offset}, new RowMapper<Message>() {
+            public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Message message = new Message();
+                message.setContent(rs.getString("CONTENT"));
+                message.setId(Long.parseLong(rs.getString("ID")));
+                message.setPersonId(Long.parseLong(rs.getString("PERSON_ID")));
+                return message;
+            }
+        }); 
+		return messages;
 	}
 }

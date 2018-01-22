@@ -40,10 +40,37 @@ public class MessageServiceTest {
 	public void testMessageServiceGetMessagesNoSearch() {
 		
 		String username = "batman";
-		List<Message> messages = messageService.getMessagesByUser(username, 20, 1, Optional.empty());
+		long knownId = 1;
+		int pageSize = 20;
+		int page = 1;
 		
-		for ( Message m : messages) {
-			logger.info(m.toString());
-		}
+		List<Message> messages = messageService.getMessagesByUser(username, pageSize, page, Optional.empty());
+
+		//Number of messages retrieved must be less than specified page Size
+		Assert.assertTrue(messages.size() <= pageSize);
+		messages.forEach( message -> {
+			Assert.assertTrue(message.getPersonId() == knownId);
+		});
+		
 	}
+	
+	@Test
+	public void testMessageServiceGetMessagesSearch() {
+		
+		String username = "batman";
+		long knownId = 1;
+		int pageSize = 20;
+		int page = 1;
+		String searchTerm = "curabitur massa";
+		List<Message> messages = messageService.getMessagesByUser(username, pageSize, page,  Optional.ofNullable(searchTerm));
+		
+		//Number of messages retrieved must be less than specified page Size
+		Assert.assertTrue(messages.size() <= pageSize);
+		messages.forEach( message -> {
+			//message must belong to user
+			Assert.assertTrue(message.getPersonId() == knownId);
+			//message must contains searchTerm
+			Assert.assertTrue(message.getContent().matches("(?i:.*"+searchTerm+".*)"));
+		});
+	} 
 }
