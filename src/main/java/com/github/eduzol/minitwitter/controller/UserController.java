@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.eduzol.minitwitter.domain.User;
-import com.github.eduzol.minitwitter.service.AuthenticationService;
 import com.github.eduzol.minitwitter.service.IAuthenticationService;
 import com.github.eduzol.minitwitter.service.IUserService;
 
@@ -51,6 +50,22 @@ public class UserController {
 		String username = authService.getAuthentication().getName();
 		List<User> followers = userService.getFollowers(username, pageSize, pageNumber);
 		return  ResponseEntity.ok(followers);
+	}
+	
+	@RequestMapping(path="/follow" , method = RequestMethod.POST)
+	public ResponseEntity<String> followUser(  @RequestParam String followee ) {
+		
+		String follower = authService.getAuthentication().getName();
+		userService.follow(follower, followee);
+		return ResponseEntity.ok("OK");
+	}
+	
+	@RequestMapping(path="/unfollow" , method = RequestMethod.POST)
+	public ResponseEntity<String> unfollowUser(  @RequestParam String followee ) {
+		
+		String follower = authService.getAuthentication().getName();
+		userService.unfollow(follower, followee);
+		return ResponseEntity.ok("OK");
 	}
 	
 }

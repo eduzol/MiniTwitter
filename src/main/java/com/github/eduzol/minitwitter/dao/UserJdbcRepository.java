@@ -28,6 +28,7 @@ public class UserJdbcRepository implements IUserRepository {
 	}
 	
 	@Override
+	@Transactional(readOnly=true)
 	public List<User> getFollowers(String username , int pageSize, int pageNumber) {
 		
 		String sql = "SELECT T.* FROM FOLLOWERS F INNER JOIN PEOPLE P ON F.PERSON_ID = P.ID \r\n" + 
@@ -50,6 +51,7 @@ public class UserJdbcRepository implements IUserRepository {
 	}
 	
 	@Override
+	@Transactional(readOnly=true)
 	public List<User> getFollowees( String username , int pageSize, int pageNumber ) {
 		
 		String sql =  "SELECT P.* FROM FOLLOWERS F INNER JOIN PEOPLE P on F.PERSON_ID = P.ID\r\n" + 
@@ -69,4 +71,37 @@ public class UserJdbcRepository implements IUserRepository {
 		
 		return followees;
 	} 
+	
+	
+	//userService.follow( 'batman' , 'superman'); //Batman follows superman
+	@Override
+	public void follow (String follower , String followee ) {
+		
+		String sql = "INSERT INTO followers(person_id, follower_person_id)\r\n" + 
+				"VALUES\r\n" + 
+				"((SELECT ID from PEOPLE WHERE HANDLE=?), (SELECT ID from PEOPLE WHERE HANDLE=?));";
+		
+		jdbcTemplate.update(sql, followee, follower);
+		
+	}
+	
+	//userService.unfollow( 'batman' , 'superman') //batman unfollows superman
+	@Override
+	public void unfollow (String follower, String followee ) {
+		
+		String sql = "DELETE FROM FOLLOWERS \r\n" + 
+				"WHERE PERSON_ID = (SELECT ID FROM PEOPLE WHERE HANDLE= ?) \r\n" + 
+				"AND FOLLOWER_PERSON_ID = (SELECT ID FROM PEOPLE WHERE HANDLE= ?)";
+		
+		jdbcTemplate.update(sql,  followee, follower);
+		
+	} 
+	
+	@Override
+	public void addUser ( String handle ,String name ) {
+		
+		String sql = "INSERT INTO PEOPLE(HANDLE, NAME) VALUES (?, ?);";
+		jdbcTemplate.update(sql, handle, name);
+		
+	}
 }
