@@ -1,19 +1,18 @@
 package com.github.eduzol.minitwitter.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.eduzol.minitwitter.domain.User;
 import com.github.eduzol.minitwitter.domain.UserIdPair;
+import com.github.eduzol.minitwitter.util.UserIdPairRowMapper;
+import com.github.eduzol.minitwitter.util.UserRowMapper;
 
 @Repository
 @Transactional
@@ -38,16 +37,7 @@ public class UserJdbcRepository implements IUserRepository {
 				"ORDER BY F.FOLLOWER_PERSON_ID  LIMIT ? OFFSET ?";	
 		
 		int offset = pageSize*(pageNumber-1);
-		List<User> followers =  jdbcTemplate.query(sql, new Object[] { username, pageSize, offset }, new RowMapper<User>() {
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User user = new User();
-                user.setHandle(rs.getNString("HANDLE"));
-                user.setId(Long.parseLong(rs.getNString("ID")));
-                user.setName(rs.getNString("NAME"));
-                return user;
-            }
-        }); 
-		
+		List<User> followers =  jdbcTemplate.query(sql, new Object[] { username, pageSize, offset }, new UserRowMapper()); 
 		return followers;
 	}
 	
@@ -60,16 +50,7 @@ public class UserJdbcRepository implements IUserRepository {
 				" WHERE T.HANDLE = ? ORDER BY F.ID LIMIT ? OFFSET ?" ;
 		
 		int offset = pageSize*(pageNumber-1);
-		List<User> followees =  jdbcTemplate.query(sql, new Object[] { username, pageSize, offset }, new RowMapper<User>() {
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User user = new User();
-                user.setHandle(rs.getNString("HANDLE"));
-                user.setId(Long.parseLong(rs.getNString("ID")));
-                user.setName(rs.getNString("NAME"));
-                return user;
-            }
-        }); 
-		
+		List<User> followees =  jdbcTemplate.query(sql, new Object[] { username, pageSize, offset }, new UserRowMapper()); 
 		return followees;
 	} 
 	
@@ -115,17 +96,7 @@ public class UserJdbcRepository implements IUserRepository {
 		 * https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
 		 */
 		String sql = "SELECT A.* from ( SELECT t1.person_id, t1.follower_person_id, t2.cnt FROM followers AS t1 JOIN (    SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id ORDER BY t1.person_id , CNT DESC ) as A inner join (SELECT t1.person_id,   MAX( t2.cnt ) AS MAX_NUM_FOLLOWERS FROM followers AS t1 JOIN ( SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id GROUP BY (T1.PERSON_ID) ORDER BY t1.person_id ) as B on A.person_id = b.person_id AND A.cnt = B.MAX_NUM_FOLLOWERS;";
-		
-		List<UserIdPair> result = jdbcTemplate.query(sql, new RowMapper<UserIdPair>() {
-            public UserIdPair mapRow(ResultSet rs, int rowNum) throws SQLException {
-            	UserIdPair pair = new UserIdPair();
-            		pair.setPersonId(rs.getLong("PERSON_ID"));
-            		pair.setFollowerPersonId(rs.getLong("FOLLOWER_PERSON_ID"));
-                	pair.setFollowerCount(rs.getInt("CNT"));
-                return pair;
-            }
-        });
-		
+		List<UserIdPair> result = jdbcTemplate.query(sql, new UserIdPairRowMapper());
 		return result;
 	}
 }
