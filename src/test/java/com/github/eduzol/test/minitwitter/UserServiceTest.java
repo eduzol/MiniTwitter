@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.eduzol.minitwitter.WebApplication;
 import com.github.eduzol.minitwitter.domain.User;
+import com.github.eduzol.minitwitter.domain.UserIdPair;
 import com.github.eduzol.minitwitter.service.IUserService;
 import org.junit.Assert;
 
@@ -34,6 +35,14 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 		List<User> followers = userService.getFollowers(username, pageSize, pageNumber);
 		followers.forEach(follower -> logger.info(follower.toString()));
 		Assert.assertTrue(followers.size() <= pageSize);
+	}
+	
+	@Test 
+	public void testUserPairsByMostPopularFollower () {
+		
+		List<UserIdPair> pairs = userService.getUsersAndMostPopularFollower();
+		//TODO implement API to retrieve user and follower then verify pair follower/followee relationship and follower count
+		pairs.forEach( pair -> logger.info(pair.toString()));
 	}
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.eduzol.minitwitter.domain.User;
+import com.github.eduzol.minitwitter.domain.UserIdPair;
 import com.github.eduzol.minitwitter.service.IAuthenticationService;
 import com.github.eduzol.minitwitter.service.IUserService;
 
@@ -66,6 +67,13 @@ public class UserController {
 		String follower = authService.getAuthentication().getName();
 		userService.unfollow(follower, followee);
 		return ResponseEntity.ok("OK");
+	}
+	
+	@RequestMapping(path="/ranking" , method = RequestMethod.GET)
+	public ResponseEntity<List<UserIdPair>> getUsersAndMostPopularFollower(   ) {
+		//TODO Add pagination to protect from overflows
+		List<UserIdPair> ranking =  userService.getUsersAndMostPopularFollower();
+		return ResponseEntity.ok(ranking);
 	}
 	
 }

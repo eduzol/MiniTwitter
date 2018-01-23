@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.eduzol.minitwitter.domain.User;
+import com.github.eduzol.minitwitter.domain.UserIdPair;
 
 @Repository
 @Transactional
@@ -103,5 +104,28 @@ public class UserJdbcRepository implements IUserRepository {
 		String sql = "INSERT INTO PEOPLE(HANDLE, NAME) VALUES (?, ?);";
 		jdbcTemplate.update(sql, handle, name);
 		
+	}
+	
+	@Override
+	public List<UserIdPair> getUsersAndMostPopularFollower(){
+		
+		//TODO add pagination to sql query and Service to protect from overflows
+		/**
+		 * Joining with simple group-identifier, max-value-in-group Sub-query
+		 * https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
+		 */
+		String sql = "SELECT A.* from ( SELECT t1.person_id, t1.follower_person_id, t2.cnt FROM followers AS t1 JOIN (    SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id ORDER BY t1.person_id , CNT DESC ) as A inner join (SELECT t1.person_id,   MAX( t2.cnt ) AS MAX_NUM_FOLLOWERS FROM followers AS t1 JOIN ( SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id GROUP BY (T1.PERSON_ID) ORDER BY t1.person_id ) as B on A.person_id = b.person_id AND A.cnt = B.MAX_NUM_FOLLOWERS;";
+		
+		List<UserIdPair> result = jdbcTemplate.query(sql, new RowMapper<UserIdPair>() {
+            public UserIdPair mapRow(ResultSet rs, int rowNum) throws SQLException {
+            	UserIdPair pair = new UserIdPair();
+            		pair.setPersonId(rs.getLong("PERSON_ID"));
+            		pair.setFollowerPersonId(rs.getLong("FOLLOWER_PERSON_ID"));
+                	pair.setFollowerCount(rs.getInt("CNT"));
+                return pair;
+            }
+        });
+		
+		return result;
 	}
 }

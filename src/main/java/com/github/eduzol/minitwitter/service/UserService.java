@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.eduzol.minitwitter.dao.IUserRepository;
 import com.github.eduzol.minitwitter.domain.User;
+import com.github.eduzol.minitwitter.domain.UserIdPair;
 
 @Service
 @Transactional
@@ -60,6 +61,14 @@ public class UserService implements IUserService {
 		
 		userDao.addUser(handle, name);
 		return;
+	}
+
+	@Override
+	public List<UserIdPair> getUsersAndMostPopularFollower() {
+		
+		List<UserIdPair> pairs = userDao.getUsersAndMostPopularFollower();
+		return pairs;
+		
 	}
 	
 }
