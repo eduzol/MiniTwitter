@@ -101,9 +101,7 @@ public class UserJdbcRepository implements IUserRepository {
 	public void addUser ( String handle ,String name ) {
 		
 		String sql = "INSERT INTO PEOPLE(HANDLE, NAME) VALUES (?, ?);";
-		
 		jdbcTemplate.update(sql, handle, name);
-		
 		
 	}
 }

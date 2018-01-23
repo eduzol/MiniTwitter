@@ -39,5 +39,27 @@ public class UserService implements IUserService {
 		return followers;
 		
 	}
+
+	@Override
+	public void follow(String follower, String followee) {
+		
+		userDao.follow(follower, followee);
+		return ;
+		
+	}
+
+	@Override
+	public void unfollow(String follower, String followee) {
+		
+		userDao.unfollow(follower, followee);
+		return;
+	}
+
+	@Override
+	public void addUser(String handle, String name) {
+		
+		userDao.addUser(handle, name);
+		return;
+	}
 	
 }
