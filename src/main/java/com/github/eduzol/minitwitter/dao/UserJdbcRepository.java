@@ -88,6 +88,7 @@ public class UserJdbcRepository implements IUserRepository {
 	}
 	
 	@Override
+	@Transactional(readOnly=true)
 	public List<UserIdPair> getUsersAndMostPopularFollower(){
 		
 		//TODO add pagination to sql query and Service to protect from overflows
@@ -97,6 +98,10 @@ public class UserJdbcRepository implements IUserRepository {
 		 */
 		String sql = "SELECT A.* from ( SELECT t1.person_id, t1.follower_person_id, t2.cnt FROM followers AS t1 JOIN (    SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id ORDER BY t1.person_id , CNT DESC ) as A inner join (SELECT t1.person_id,   MAX( t2.cnt ) AS MAX_NUM_FOLLOWERS FROM followers AS t1 JOIN ( SELECT person_id, COUNT(*) AS cnt FROM followers GROUP BY person_id ) AS t2  ON t1.follower_person_id = t2.person_id GROUP BY (T1.PERSON_ID) ORDER BY t1.person_id ) as B on A.person_id = b.person_id AND A.cnt = B.MAX_NUM_FOLLOWERS;";
 		List<UserIdPair> result = jdbcTemplate.query(sql, new UserIdPairRowMapper());
+		if (logger.isDebugEnabled()) {
+			result.forEach( pair -> logger.debug("pair found " + pair));
+		}
+		logger.info("found " + result.size() + " pairs");
 		return result;
 	}
 }

@@ -1,5 +1,7 @@
 package com.github.eduzol.minitwitter.controller;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -72,7 +74,11 @@ public class UserController {
 	@RequestMapping(path="/ranking" , method = RequestMethod.GET)
 	public ResponseEntity<List<UserIdPair>> getUsersAndMostPopularFollower(   ) {
 		//TODO Add pagination to protect from overflows
+		Instant starts = Instant.now();
 		List<UserIdPair> ranking =  userService.getUsersAndMostPopularFollower();
+		Instant ends = Instant.now();
+		//TODO refactor this code and move to performance filter
+		logger.info("ranking processed in " +Duration.between(starts, ends).toMillis() + " milliseconds");
 		return ResponseEntity.ok(ranking);
 	}
 	
